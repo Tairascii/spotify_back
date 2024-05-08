@@ -3,7 +3,6 @@ package repository
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"log"
 )
 
 type Config struct {
@@ -18,7 +17,7 @@ type Config struct {
 func NewPostgresDB(config Config) (*sqlx.DB, error) {
 	db, err := sqlx.Open("postgres",
 		fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
-			config.Host, config.Port, config.Username, config.DBName, config.Password, config.SSLMode)
+			config.Host, config.Port, config.Username, config.DBName, config.Password, config.SSLMode),
 	)
 
 	if err != nil {
