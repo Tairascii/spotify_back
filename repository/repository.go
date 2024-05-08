@@ -1,10 +1,18 @@
 package repository
 
-import "github.com/jmoiron/sqlx"
+import (
+	"github.com/jmoiron/sqlx"
+	"spotify_back/repository/daos"
+)
+
+type Auth interface {
+	SignInUser(login, password string) (string, error)
+}
 
 type Repository struct {
+	Auth
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
-	return &Repository{}
+	return &Repository{Auth: daos.NewUserDao(db)}
 }
