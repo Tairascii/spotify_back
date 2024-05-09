@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"spotify_back/models"
+	"spotify_back/pkg"
 )
 
 func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
@@ -28,5 +30,20 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
-	log.Println("nice from sign up")
+	var userInput models.User
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&userInput); err != nil {
+		pkg.JSONResponse(w, err, http.StatusBadRequest)
+		return
+	}
+
+	userId, err := h.manager.Auth.SignUpUser(userInput)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	pkg.JSONResponse(w, map[string]int{"id": userId}, http.StatusOK)
+	return
 }

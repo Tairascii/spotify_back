@@ -1,9 +1,13 @@
 package managers
 
-import "spotify_back/repository"
+import (
+	"spotify_back/models"
+	"spotify_back/repository"
+)
 
 type Auth interface {
 	SignInUser(login, password string) (string, error)
+	SignUpUser(user models.User) (int, error)
 }
 
 type Manager struct {

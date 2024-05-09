@@ -2,12 +2,13 @@ package repository
 
 import (
 	"github.com/jmoiron/sqlx"
+	"spotify_back/models"
 	"spotify_back/repository/daos"
 )
 
 type Auth interface {
 	SignInUser(login, password string) (string, error)
-	SignUpUser(login, password string) (string, error)
+	SignUpUser(user models.User) (int, error)
 }
 
 type Repository struct {
