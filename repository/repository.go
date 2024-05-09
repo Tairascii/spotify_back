@@ -7,6 +7,7 @@ import (
 
 type Auth interface {
 	SignInUser(login, password string) (string, error)
+	SignUpUser(login, password string) (string, error)
 }
 
 type Repository struct {
