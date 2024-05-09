@@ -51,12 +51,14 @@ func (app *App) Start(configName string) {
 	handler := handlers.NewHandler(manager)
 
 	srv := &http.Server{
-		Addr:         ":" + "8080", // TODO create config file
+		Addr:         ":" + viper.GetString("port"), // TODO create config file
 		ReadTimeout:  30 * time.Second,
 		WriteTimeout: 30 * time.Second,
 		IdleTimeout:  30 * time.Second,
 		Handler:      handler.InitRoutes(), // TODO change to normal handler
 	}
+
+	log.Println("listening on port", viper.GetString("port"))
 
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalf("something went wrong while runing server %s", err.Error())
