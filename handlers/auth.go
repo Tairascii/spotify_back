@@ -33,7 +33,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	var userInput models.User
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&userInput); err != nil {
-		pkg.JSONResponse(w, err, http.StatusBadRequest)
+		pkg.JSONResponse(w, map[string]string{"message": err.Error()}, http.StatusBadRequest)
 		return
 	}
 

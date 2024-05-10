@@ -5,4 +5,4 @@ db:
   port: "5432"
   sslmode: "disable"
 
-port: "8080"
+port: "8000"
