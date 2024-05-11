@@ -1,14 +1,17 @@
 package app
 
 import (
+	"context"
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"spotify_back/handlers"
 	"spotify_back/managers"
 	"spotify_back/repository"
+	"syscall"
 	"time"
 )
 
@@ -58,9 +61,25 @@ func (app *App) Start(configName string) {
 		Handler:      handler.InitRoutes(),
 	}
 
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			log.Fatalf("something went wrong while runing server %s", err.Error())
+		}
+	}()
+
 	log.Println("listening on port", viper.GetString("port"))
 
-	if err := srv.ListenAndServe(); err != nil {
-		log.Fatalf("something went wrong while runing server %s", err.Error())
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	log.Println("shutting down server")
+
+	if err := srv.Shutdown(context.Background()); err != nil {
+		log.Fatalf("something went wrong while shutting down server %s", err.Error())
+	}
+
+	if err := db.Close(); err != nil {
+		log.Fatalf("something went wrong while closing connection to db %s", err.Error())
 	}
 }
