@@ -32,6 +32,9 @@ func authHandlers(h *Handler) http.Handler {
 		r.Post("/sign-up", func(w http.ResponseWriter, r *http.Request) {
 			h.signUp(w, r)
 		})
+		r.Post("/refresh", func(w http.ResponseWriter, r *http.Request) {
+			h.refresh(w, r)
+		})
 	})
 
 	return rg

@@ -22,12 +22,12 @@ func (h *Handler) identifyUser(r *http.Request) {
 		return
 	}
 
-	userId, err := h.manager.Auth.ParseToken(token)
+	claims, err := h.manager.Auth.ParseToken(token)
 
 	if err != nil {
 		return
 	}
 
 	ctx := r.Context()
-	ctx = context.WithValue(ctx, userId, userId)
+	ctx = context.WithValue(ctx, "userId", claims.UserId)
 }

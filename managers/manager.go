@@ -6,9 +6,10 @@ import (
 )
 
 type Auth interface {
-	SignInUser(login, password string) (string, error)
+	SignInUser(login, password string) (Tokens, error)
 	SignUpUser(user models.User) (int, error)
-	ParseToken(token string) (int, error)
+	ParseToken(token string) (*TokenClaims, error)
+	RefreshTokens(refreshToken string) (Tokens, error)
 }
 
 type Manager struct {

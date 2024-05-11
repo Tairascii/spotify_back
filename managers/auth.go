@@ -19,32 +19,49 @@ type AuthManager struct {
 	repo repository.Auth
 }
 
-type tokenClaims struct {
+type TokenClaims struct {
 	jwt.StandardClaims
-	UserId int `json:"user_id"`
+	UserId    int  `json:"user_id"`
+	IsRefresh bool `json:"is_refresh"`
+}
+
+type Tokens struct {
+	AccessToken  string
+	RefreshToken string
 }
 
 func NewAuthManager(repo repository.Auth) *AuthManager {
 	return &AuthManager{repo: repo}
 }
 
-func (a *AuthManager) SignInUser(login, password string) (string, error) {
+func (a *AuthManager) SignInUser(login, password string) (Tokens, error) {
 	user, err := a.repo.GetUser(login, generatePassword(password))
 
 	if err != nil {
-		return "", err
+		return Tokens{}, err
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaims{
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(12 * time.Hour).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 		user.Id,
+		false,
 	})
 
-	singed, err := token.SignedString([]byte(signInKey))
-	return singed, err
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaims{
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(36 * time.Hour).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+		user.Id,
+		true,
+	})
+
+	singedAccess, err := accessToken.SignedString([]byte(signInKey))
+	singedRefresh, err := refreshToken.SignedString([]byte(signInKey))
+	return Tokens{AccessToken: singedAccess, RefreshToken: singedRefresh}, err
 }
 
 func (a *AuthManager) SignUpUser(user models.User) (int, error) {
@@ -52,8 +69,8 @@ func (a *AuthManager) SignUpUser(user models.User) (int, error) {
 	return a.repo.SignUpUser(user)
 }
 
-func (a *AuthManager) ParseToken(accessToken string) (int, error) {
-	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+func (a *AuthManager) ParseToken(inputToken string) (*TokenClaims, error) {
+	token, err := jwt.ParseWithClaims(inputToken, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid sign method")
 		}
@@ -62,16 +79,40 @@ func (a *AuthManager) ParseToken(accessToken string) (int, error) {
 	})
 
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	claims, ok := token.Claims.(*tokenClaims)
+	claims, ok := token.Claims.(*TokenClaims)
 
 	if !ok {
-		return 0, errors.New("token claims invalid")
+		return nil, errors.New("token claims invalid")
 	}
 
-	return claims.UserId, nil
+	return claims, nil
+}
+
+func (a *AuthManager) RefreshTokens(refreshToken string) (Tokens, error) {
+	claims, err := a.ParseToken(refreshToken)
+
+	if err != nil {
+		return Tokens{}, err
+	}
+
+	if !claims.IsRefresh {
+		return Tokens{}, errors.New("invalid refresh token")
+	}
+
+	newAccessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaims{
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(12 * time.Hour).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+		claims.UserId,
+		false,
+	})
+
+	singedAccess, err := newAccessToken.SignedString([]byte(signInKey))
+	return Tokens{AccessToken: singedAccess, RefreshToken: refreshToken}, nil
 }
 
 func generatePassword(password string) string {

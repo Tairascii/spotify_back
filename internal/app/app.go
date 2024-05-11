@@ -70,7 +70,7 @@ func (app *App) Start(configName string) {
 	log.Println("listening on port", viper.GetString("port"))
 
 	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
 	<-quit
 
 	log.Println("shutting down server")
