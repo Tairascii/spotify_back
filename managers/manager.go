@@ -8,6 +8,7 @@ import (
 type Auth interface {
 	SignInUser(login, password string) (string, error)
 	SignUpUser(user models.User) (int, error)
+	ParseToken(token string) (int, error)
 }
 
 type Manager struct {
