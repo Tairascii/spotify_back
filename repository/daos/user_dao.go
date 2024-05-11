@@ -27,6 +27,9 @@ func (dao *UserDao) SignUpUser(user models.User) (int, error) {
 	return id, nil
 }
 
-func (dao *UserDao) SignInUser(login, password string) (string, error) {
-	return "", nil
+func (dao *UserDao) GetUser(login, password string) (models.User, error) {
+	var user models.User
+	query := fmt.Sprintf("select id from users where email=$1 and password=$2")
+	err := dao.c.Get(&user, query, login, password)
+	return user, err
 }

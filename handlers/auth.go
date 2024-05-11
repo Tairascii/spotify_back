@@ -8,19 +8,31 @@ import (
 	"spotify_back/pkg"
 )
 
+type signInUser struct {
+	Email    string
+	Password string
+}
+
 func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
-	//TODO take data from request body
-	userId, err := h.manager.Auth.SignInUser("", "")
+	var userInput signInUser
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&userInput); err != nil {
+		pkg.JSONResponse(w, map[string]string{"message": err.Error()}, http.StatusBadRequest)
+		return
+	}
+
+	token, err := h.manager.Auth.SignInUser(userInput.Email, userInput.Password)
 
 	if err != nil {
-		log.Println("invalid creds")
+		log.Println("invalid credentials")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	response := struct {
-		Id string `json:"id"`
-	}{Id: userId}
+		AccessToken string `json:"accessToken"`
+	}{AccessToken: token}
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {

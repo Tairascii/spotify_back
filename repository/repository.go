@@ -7,7 +7,7 @@ import (
 )
 
 type Auth interface {
-	SignInUser(login, password string) (string, error)
+	GetUser(login, password string) (models.User, error)
 	SignUpUser(user models.User) (int, error)
 }
 
