@@ -12,10 +12,20 @@ type Auth interface {
 	RefreshTokens(refreshToken string) (Tokens, error)
 }
 
+type Playlist interface {
+	GetPlaylist(playlistId int) (PlaylistWithSongs, error)
+	CreatePlaylist(userId int) (int, error)
+	DeletePlaylist(id int) error
+	EditPlaylist(playlist models.Playlist) error
+	AddSongToPlaylist(songId, playlistId int) error
+	DeleteSongFromPlaylist(songId, playlistId int) error
+}
+
 type Manager struct {
 	Auth
+	Playlist
 }
 
 func NewManager(repo *repository.Repository) *Manager {
-	return &Manager{Auth: NewAuthManager(repo.Auth)}
+	return &Manager{Auth: NewAuthManager(repo.Auth), Playlist: NewPlaylistManager(repo.Playlist)}
 }
