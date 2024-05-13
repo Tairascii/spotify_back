@@ -20,11 +20,17 @@ type Playlist interface {
 	DeleteSongFromPlaylist(songId, playlistId int) error
 }
 
+type PlaylistSong interface {
+	CreateLink(playlistId, songId int) (int, error)
+	GetSongsByPlaylist(playlistId int) ([]models.Song, error)
+}
+
 type Repository struct {
 	Auth
 	Playlist
+	PlaylistSong
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
-	return &Repository{Auth: daos.NewUserDao(db), Playlist: daos.NewPlaylistDao(db)}
+	return &Repository{Auth: daos.NewUserDao(db), Playlist: daos.NewPlaylistDao(db), PlaylistSong: daos.NewPlaylistSongDao(db)}
 }

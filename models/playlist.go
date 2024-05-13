@@ -11,7 +11,7 @@ type Playlist struct {
 	Description string    `json:"description"`
 }
 
-type PlaylistMusicTracks struct {
+type PlaylistSong struct {
 	PlaylistId int `json:"playlist_id"`
 	SongId     int `json:"song_id"`
 }
