@@ -18,12 +18,15 @@ func (h *Handler) uploadSong(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	path, err := h.manager.Song.UploadFileSong(&file)
+	title := r.FormValue("title")
+	author := r.FormValue("author")
+
+	id, err := h.manager.Song.UploadSong(&file, title, author, 0)
 
 	if err != nil {
 		pkg.JSONResponse(w, map[string]string{"message": err.Error()}, http.StatusBadRequest)
 	}
 
-	pkg.JSONResponse(w, map[string]string{"message": path}, http.StatusOK)
+	pkg.JSONResponse(w, map[string]int{"id": id}, http.StatusOK)
 	return
 }

@@ -23,7 +23,7 @@ type Playlist interface {
 }
 
 type Song interface {
-	UploadFileSong(file *multipart.File) (string, error)
+	UploadSong(file *multipart.File, title, author string, userId int) (int, error)
 }
 
 type Manager struct {

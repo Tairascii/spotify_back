@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
 	"net/http"
 	"spotify_back/managers"
 )
@@ -17,6 +18,11 @@ func NewHandler(manager *managers.Manager) *Handler {
 
 func (h *Handler) InitRoutes() *chi.Mux {
 	r := chi.NewRouter()
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+	}))
 	r.Use(middleware.Logger)
 	r.Mount("/auth", authHandlers(h))
 	r.Mount("/playlist", playlistHandlers(h))

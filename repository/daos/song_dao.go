@@ -29,17 +29,17 @@ func (dao *SongDao) CreateSong(song models.Song) (int, error) {
 
 func (dao *SongDao) DeleteSong(songId int) error {
 	query := fmt.Sprintf("delete from songs where id = $1")
-	row := dao.c.QueryRow(query, songId)
+	_, err := dao.c.Exec(query, songId)
 
-	return row.Err()
+	return err
 }
 
 func (dao *SongDao) GetSong(songId int) (models.Song, error) {
 	var song models.Song
 	query := fmt.Sprintf("select * from songs where id = $1")
-	row := dao.c.QueryRow(query, songId)
+	err := dao.c.Get(&song, query, songId)
 
-	if err := row.Scan(&song); err != nil {
+	if err != nil {
 		log.Printf("something went wrong while getting song %s", err.Error())
 		return models.Song{}, err
 	}
