@@ -52,7 +52,7 @@ func (dao *PlaylistSongDao) GetSongsByPlaylist(playlistId int) ([]models.Song, e
 
 	placeholders := make([]string, len(songIds))
 	for i := range placeholders {
-		placeholders[i] = "?"
+		placeholders[i] = fmt.Sprintf("$%d", i+1)
 	}
 
 	query = fmt.Sprintf("select * from songs where id in (%s)", strings.Join(placeholders, ","))

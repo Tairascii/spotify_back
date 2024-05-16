@@ -4,6 +4,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"spotify_back/models"
 	"spotify_back/repository/daos"
+	"time"
 )
 
 type Auth interface {
@@ -25,12 +26,23 @@ type PlaylistSong interface {
 	GetSongsByPlaylist(playlistId int) ([]models.Song, error)
 }
 
+type LikedSong interface {
+	AddLike(userId, songId int, createdAt time.Time) (int, error)
+	RemoveLike(userId, songId int) error
+}
+
 type Repository struct {
 	Auth
 	Playlist
 	PlaylistSong
+	LikedSong
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
-	return &Repository{Auth: daos.NewUserDao(db), Playlist: daos.NewPlaylistDao(db), PlaylistSong: daos.NewPlaylistSongDao(db)}
+	return &Repository{
+		Auth:         daos.NewUserDao(db),
+		Playlist:     daos.NewPlaylistDao(db),
+		PlaylistSong: daos.NewPlaylistSongDao(db),
+		LikedSong:    daos.NewLikedSongDao(db),
+	}
 }
