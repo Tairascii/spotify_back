@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"mime/multipart"
 	"spotify_back/models"
 	"spotify_back/repository"
 )
@@ -21,11 +22,20 @@ type Playlist interface {
 	DeleteSongFromPlaylist(songId, playlistId int) error
 }
 
+type Song interface {
+	UploadFileSong(file *multipart.File) (string, error)
+}
+
 type Manager struct {
 	Auth
 	Playlist
+	Song
 }
 
 func NewManager(repo *repository.Repository) *Manager {
-	return &Manager{Auth: NewAuthManager(repo.Auth), Playlist: NewPlaylistManager(repo.Playlist)}
+	return &Manager{
+		Auth:     NewAuthManager(repo.Auth),
+		Playlist: NewPlaylistManager(repo.Playlist),
+		Song:     NewSongManager(repo.Song),
+	}
 }

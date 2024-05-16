@@ -20,6 +20,7 @@ func (h *Handler) InitRoutes() *chi.Mux {
 	r.Use(middleware.Logger)
 	r.Mount("/auth", authHandlers(h))
 	r.Mount("/playlist", playlistHandlers(h))
+	r.Mount("/song", songHandlers(h))
 	return r
 }
 
@@ -34,6 +35,17 @@ func authHandlers(h *Handler) http.Handler {
 		})
 		r.Post("/refresh", func(w http.ResponseWriter, r *http.Request) {
 			h.refresh(w, r)
+		})
+	})
+
+	return rg
+}
+
+func songHandlers(h *Handler) http.Handler {
+	rg := chi.NewRouter()
+	rg.Group(func(r chi.Router) {
+		r.Post("/upload", func(w http.ResponseWriter, r *http.Request) {
+			h.uploadSong(w, r)
 		})
 	})
 

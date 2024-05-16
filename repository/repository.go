@@ -31,11 +31,18 @@ type LikedSong interface {
 	RemoveLike(userId, songId int) error
 }
 
+type Song interface {
+	CreateSong(song models.Song) (int, error)
+	DeleteSong(songId int) error
+	GetSong(songId int) (models.Song, error)
+}
+
 type Repository struct {
 	Auth
 	Playlist
 	PlaylistSong
 	LikedSong
+	Song
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
@@ -44,5 +51,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Playlist:     daos.NewPlaylistDao(db),
 		PlaylistSong: daos.NewPlaylistSongDao(db),
 		LikedSong:    daos.NewLikedSongDao(db),
+		Song:         daos.NewSongDao(db),
 	}
 }

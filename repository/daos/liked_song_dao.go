@@ -21,7 +21,7 @@ func (dao *LikedSongDao) AddLike(userId, songId int, createdAt time.Time) (int, 
 	row := dao.c.QueryRow(query, userId, songId, createdAt)
 
 	if err := row.Scan(&id); err != nil {
-		log.Printf("something went wrong while creating user %s", err.Error())
+		log.Printf("something went wrong while adding like %s", err.Error())
 		return 0, err
 	}
 	return id, nil
@@ -30,8 +30,6 @@ func (dao *LikedSongDao) AddLike(userId, songId int, createdAt time.Time) (int, 
 func (dao *LikedSongDao) RemoveLike(userId, songId int) error {
 	query := fmt.Sprintf("delete from liked_songs where used_id = $1 and song_id = $2")
 	row := dao.c.QueryRow(query, userId, songId)
-	if row.Err() != nil {
-		return row.Err()
-	}
-	return nil
+
+	return row.Err()
 }
