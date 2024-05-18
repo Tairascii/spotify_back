@@ -49,12 +49,12 @@ func authHandlers(h *Handler) http.Handler {
 
 func songHandlers(h *Handler) http.Handler {
 	rg := chi.NewRouter()
+	rg.Use(h.identifyUser)
 	rg.Group(func(r chi.Router) {
 		r.Post("/upload", func(w http.ResponseWriter, r *http.Request) {
 			h.uploadSong(w, r)
 		})
 	})
-
 	return rg
 }
 

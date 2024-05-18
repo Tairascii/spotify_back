@@ -20,8 +20,14 @@ func (h *Handler) uploadSong(w http.ResponseWriter, r *http.Request) {
 
 	title := r.FormValue("title")
 	author := r.FormValue("author")
+	userId, ok := pkg.GetContextValue(r.Context(), "userId").(int)
 
-	id, err := h.manager.Song.UploadSong(&file, title, author, 0)
+	if !ok {
+		pkg.JSONResponse(w, map[string]string{"message": "invalid user id"}, http.StatusBadRequest)
+		return
+	}
+
+	id, err := h.manager.Song.UploadSong(&file, title, author, userId)
 
 	if err != nil {
 		pkg.JSONResponse(w, map[string]string{"message": err.Error()}, http.StatusBadRequest)
